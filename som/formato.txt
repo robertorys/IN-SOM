@@ -1,0 +1,10 @@
+Formato del json
+
+{
+    'name': string
+    'weights': list,
+    'weights_lenth': int
+    'n': int,
+    'training_iterations': int,
+    'training_rate': list,
+}

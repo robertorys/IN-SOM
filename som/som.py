@@ -9,7 +9,7 @@ import math
 
 class SOM:
     def __init__(self,nombre,n,muestra_poblacion,ciclos,tasa_de_aprendizaje=0.5):
-        self.ciclos=ciclos
+        self.ciclos=ciclos  
         self.nombre=nombre
         self.tasa_de_aprendizaje=tasa_de_aprendizaje
         self.weights=[]
