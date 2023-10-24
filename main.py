@@ -1,4 +1,5 @@
 import tkinter as tk
+from som import somObject
 
 class interface:
 
@@ -16,6 +17,13 @@ class interface:
         # Frame1: Es para el som
         fm1 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm1.grid(row=0, column=0, rowspan=2, sticky='nsew')
+        
+        som = somObject(100, 1000, '/data/sensorimotor.csv', 'som_test_1_100x100.json')
+        a = [2.214,0,0.429,0,0,2.429,0,0.357,1.071,0.357,0]
+        img = som.graphPoint(a)
+        
+        label = tk.Label(fm1, img)
+        label.pack()
         # Funcion para graficar SOM
         
         # Frame2: Una palabra

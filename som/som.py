@@ -8,6 +8,8 @@ import dataManager as dm
 import matplotlib.pyplot as plt
 import random
 import math
+from PIL import Image
+import io
 
 class somObject:
     normsMatrix = []
@@ -152,11 +154,15 @@ class somObject:
             self.normsMatrix.append(ni)
             
     def graph(self) -> None:
+        fig, axes = plt.subplots(1,1)
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.colorbar()
-        plt.show()
+        
+        print(type(fig))
+        
     
     def graphPoint(self, x:list):
+        plt.plot(1)
         bmu = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
         
         self.createMatrixM()
@@ -165,7 +171,15 @@ class somObject:
         bum_j = bmu % self.n # columna del bmu.
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot(bmu_i,bum_j,marker =".")
-        plt.show()
+
+        
+        # Guardar el gráfico en un objeto BytesIO
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)  # Rebobinar el buffer
+        
+        img = Image.open(buffer)
+        return img
     
     def graphDif(self, x:list, y:list):
         bmux = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
