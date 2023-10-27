@@ -16,6 +16,7 @@ class somObject:
 
     # Iniciar el som nuevo.
     def __init__(self, n:int, cicles:int, training_data:str, somJson: str = None, learning_rate=0.5):
+        self.strt = training_data
         if not somJson:
             self.n = n
             self.cicles = cicles
@@ -207,6 +208,9 @@ class somObject:
         self.dictData['norms_matrix'] = self.normsMatrix
         
         dm.saveJson(self.dictData, nameFile)
+
+    def GetDict(self) -> dict:
+        return dm.csv_read_dict(self.strt)
                 
 # ----------Operaciones con vectores ----------#
 

@@ -13,6 +13,18 @@ def csv_read(csvFile) -> list:
             data.append([float(data) for data in i[1:]])
     return data
 
+def csv_read_dict(csvFile) -> dict:
+    data = {}
+    with open(csvFile) as file:
+        reader = csv.reader(file)
+        csv_data = list(reader)
+        # Quitar los cabezales
+        csv_data.pop(0)
+            
+        for i in csv_data:
+            data[i[0]] = [float(data) for data in i[1:]]
+    return data
+
 def getJson(add: str) -> dict:
     with open(add, 'r') as f:
         somDict = json.load(f)
