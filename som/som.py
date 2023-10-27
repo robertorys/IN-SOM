@@ -4,7 +4,7 @@
 # - Tasa de aprendizaje.
 # - Datos de entrenamiento (dirección del csv)
 
-import dataManager as dm
+from som import dataManager as dm
 import matplotlib.pyplot as plt
 import random
 import math
@@ -154,11 +154,11 @@ class somObject:
             self.normsMatrix.append(ni)
             
     def graph(self) -> None:
+        self.createMatrixM()
         fig, axes = plt.subplots(1,1)
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.colorbar()
-        
-        print(type(fig))
+        return fig
         
     
     def graphPoint(self, x:list):
@@ -172,14 +172,7 @@ class somObject:
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot(bmu_i,bum_j,marker =".")
 
-        
-        # Guardar el gráfico en un objeto BytesIO
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format='png')
-        buffer.seek(0)  # Rebobinar el buffer
-        
-        img = Image.open(buffer)
-        return img
+        return plt.subplots()
     
     def graphDif(self, x:list, y:list):
         bmux = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
@@ -195,7 +188,7 @@ class somObject:
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot([x_i, y_i],[x_j, y_j])
-        plt.show()
+        return plt.subplots()
     
     
     

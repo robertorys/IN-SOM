@@ -1,5 +1,7 @@
 import tkinter as tk
-from som import somObject
+from som import som
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 class interface:
 
@@ -11,19 +13,14 @@ class interface:
         self.root.grid_rowconfigure(1, weight=3, uniform="rows_g1")
         self.root.grid_columnconfigure(0, weight=3,  uniform="cols_g1")
         self.root.grid_columnconfigure(1, weight=1,  uniform="cols_g1")
-
         self.root.grid_rowconfigure(2, weight=1, uniform="rows_g1")
-        
+        self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
         # Frame1: Es para el som
         fm1 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm1.grid(row=0, column=0, rowspan=2, sticky='nsew')
+        canvas=FigureCanvasTkAgg(self.som.graph(),master=fm1)
+        canvas.get_tk_widget().pack()
         
-        som = somObject(100, 1000, '/data/sensorimotor.csv', 'som_test_1_100x100.json')
-        a = [2.214,0,0.429,0,0,2.429,0,0.357,1.071,0.357,0]
-        img = som.graphPoint(a)
-        
-        label = tk.Label(fm1, img)
-        label.pack()
         # Funcion para graficar SOM
         
         # Frame2: Una palabra
