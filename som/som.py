@@ -33,7 +33,7 @@ class somObject:
             self.n =  self.dictData['n']
             self.training_i = self.dictData['training_iterations']
             self.training_data = dm.csv_read(training_data)
-            self.weightsLen = self.dictData['weights_lenght']
+            self.weightsLen = self.dictData['weights_length']
             self.learning_rate = learning_rate
             
             self.weights = self.dictData['weights']
