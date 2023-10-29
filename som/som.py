@@ -33,7 +33,7 @@ class somObject:
             self.cicles = cicles
             self.n =  self.dictData['n']
             self.training_i = self.dictData['training_iterations']
-            self.training_data = dm.csv_read(training_data)
+            self.training_data = dm.csv_read_dict(training_data)
             self.weightsLen = self.dictData['weights_length']
             self.learning_rate = learning_rate
             
@@ -163,7 +163,7 @@ class somObject:
         
     
     def graphPoint(self, x:list):
-        plt.plot(1)
+        fig=plt.figure()
         bmu = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
         
         self.createMatrixM()
@@ -171,11 +171,11 @@ class somObject:
         bmu_i = math.floor(bmu / self.n) # fila del bmu.
         bum_j = bmu % self.n # columna del bmu.
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
-        plt.plot(bmu_i,bum_j,marker =".")
-
-        return plt.subplots()
+        plt.plot(bmu_i,bum_j,marker ="x")
+        return fig
     
     def graphDif(self, x:list, y:list):
+        fig=plt.figure()
         bmux = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
         bmuy = self.best_matching_unit(y) # Indice del la celula más parecida al dato para entrenamiento.
         
@@ -189,7 +189,7 @@ class somObject:
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot([x_i, y_i],[x_j, y_j])
-        return plt.subplots()
+        return fig
     
     
     
