@@ -2,6 +2,9 @@ import tkinter as tk
 from som import som
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import simpledialog
 import matplotlib.pyplot as plt
 
 class interface:
@@ -62,13 +65,65 @@ class interface:
         fm4.grid(row=2, column=0, columnspan=2, sticky='nsew')
 
         # Entique
-        tk.Label(fm4, text='Algo va aqui', bg='white').pack()
+        tk.Label(fm4, text='Guardar SOM', bg='white').pack()
         # Entrada para una palabra
         #tk.filedialog(fm4, mode='r').pack()
         # botón para una palabra
-        tk.Button(fm4, text='Buscar').pack()
+        tk.Button(fm4, text='Guardar SOM',command=self.save_som).pack()
+        tk.Button(fm4,text="Cargar SOM",command=self.load_som).pack()
+        tk.Button(fm4,text="Nuevo SOM",command=self.new_som).pack()
+        tk.Button(fm4,text="Entrenar SOM", command=self.som_training).pack()
 
         self.root.mainloop()
+
+    def som_training(self)->None:
+        self.som.init_training()
+        self.update_som_image(self.som.graph())
+
+    def new_som(self)->None:
+        n=simpledialog.askinteger("Dimension del SOM","n=")
+        if not n:
+            messagebox.showerror("Se necesita la dimension del SOM")
+            return
+        cicles=simpledialog.askinteger("Ciclos","cicles=")
+        if not cicles:
+            messagebox.showerror("Se necesita la cantidad de ciclos")
+            return
+        train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
+        if not train_data_path:
+            messagebox.showerror("Necesitamos la información de entrenamiento")
+            return
+        learn_rate=simpledialog.askfloat("Razon de aprendizaje","leaning_rate=")
+        if learn_rate:
+            self.som=som.somObject(n,cicles,train_data_path.name,learning_rate=learn_rate)
+        else:
+            self.som=som.somObject(n,cicles,train_data_path.name)
+        self.update_som_image(self.som.graph())
+
+    def load_som(self)->None:
+        train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
+        if not train_data_path:
+            messagebox.showerror("Necesitamos la información de entrenamiento")
+            return
+        json_path=filedialog.askopenfile(filetypes=[("JSON FILES","*.json")])
+        if json_path:
+            self.som=som.somObject(0,0,train_data_path.name,json_path.name)
+            self.update_som_image(self.som.graph())
+        else:
+            messagebox.showerror("Necesitamos el archivo json que contiene el SOM")
+        return
+
+    def save_som(self)->None:
+        name=simpledialog.askstring("Nombre del SOM","Ingrese el nombre : ")
+        if name:
+            file_path=filedialog.asksaveasfile(defaultextension='.json')
+            if file_path:
+                self.som.save(name,file_path.name)
+                messagebox.showinfo("Archivo guardado con exito")
+            else:
+                messagebox.showerror("Error","Se requiere una dirección para guardar")
+        else:
+            messagebox.showerror("Error","Se necesita asignar un nombre")
 
     def twoword_search(self)->None:
         """
