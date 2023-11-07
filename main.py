@@ -12,19 +12,20 @@ class interface:
     def __init__(self):
         # Configuración del frame principal 
         self.root = tk.Tk()
-        self.root.wm_attributes('-zoomed', 1)
-        self.root.grid_rowconfigure(0, weight=3, uniform="rows_g1")
-        self.root.grid_rowconfigure(1, weight=3, uniform="rows_g1")
-        self.root.grid_columnconfigure(0, weight=3,  uniform="cols_g1")
-        self.root.grid_columnconfigure(1, weight=1,  uniform="cols_g1")
-        self.root.grid_rowconfigure(2, weight=1, uniform="rows_g1")
+        self.root.attributes('-zoomed', 1)
+        self.root.grid_rowconfigure(0, uniform="rows_g1")
+        self.root.grid_rowconfigure(1, uniform="rows_g1")
+        self.root.grid_columnconfigure(0,  uniform="cols_g1")
+        self.root.grid_columnconfigure(1,  uniform="cols_g1")
+        self.root.grid_columnconfigure(2,uniform='cols_g1')
+        self.root.grid_rowconfigure(2, uniform="rows_g1")
         #Objeto SOM para obtener el SOM, entrenar etc.
         self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
         self.recent_figure=None
         # Frame1: Es para el som
         #Creacion del Frame dedicado a graficar el resultado del SOM
         self.som_tk=fm1 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
-        fm1.grid(row=0, column=0, rowspan=2, sticky='nsew')
+        fm1.grid(row=0, column=0, rowspan=2,columnspan=2, sticky='nsew')
         #Canvas que maneja la figura de matplot para graficar sobre el tkinter
         self.canvas_som=None
         self.update_som_image(self.som.graph())
@@ -32,7 +33,7 @@ class interface:
         # Frame2: Una palabra
         #Creacion del frame contenedor
         fm2 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
-        fm2.grid(row=0, column=1, sticky='nsew')
+        fm2.grid(row=0, column=2, sticky='nsew')
 
         # Etiqueta
         tk.Label(fm2, text='Una palabra', bg='white').pack()
@@ -45,7 +46,7 @@ class interface:
 
         # Frame3: Dos palabra
         fm3 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
-        fm3.grid(row=1, column=1, sticky='nsew')
+        fm3.grid(row=1, column=2, sticky='nsew')
 
         # Entique
         tk.Label(fm3, text='Two words', bg='white').pack()
@@ -62,18 +63,21 @@ class interface:
 
         # Frame4: Meter archivo y entrenar el som.
         fm4 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
-        fm4.grid(row=2, column=0, columnspan=2, sticky='nsew')
-
+        fm4.grid(row=2, column=0, sticky='nsew')
+        fm5=tk.Frame(self.root,bg='white',highlightbackground="black", highlightthickness=2)
+        fm5.grid(row=2,column=1,sticky='nsew')
+        fm6=tk.Frame(self.root,bg='white',highlightbackground="black", highlightthickness=2)
+        fm6.grid(row=2,column=2,sticky='nsew')
         # Entique
-        tk.Label(fm4, text='Guardar SOM', bg='white').pack()
+        #tk.Label(fm4, text='Guardar SOM', bg='white').pack()
         # Entrada para una palabra
         #tk.filedialog(fm4, mode='r').pack()
         # botón para una palabra
-        tk.Button(fm4, text='Guardar SOM',command=self.save_som).pack()
+        tk.Button(fm6,text='Guardar SOM',command=self.save_som).pack()
         tk.Button(fm4,text="Cargar SOM",command=self.load_som).pack()
         tk.Button(fm4,text="Nuevo SOM",command=self.new_som).pack()
-        tk.Button(fm4,text="Entrenar SOM", command=self.som_training).pack()
-
+        tk.Button(fm5,text="Entrenar SOM", command=self.som_training).pack()
+        tk.Button(fm6,text='Exit',command=self.quit).pack()
         self.root.mainloop()
 
     def som_training(self)->None:
@@ -133,10 +137,10 @@ class interface:
         w2=self.tw_2w_e.get()
         #print(w1)
         #print(w2)
-        if w1 in self.som.training_data and w2 in self.som.training_data:
+        if w1 in self.som.dict_train_data and w2 in self.som.dict_train_data:
             #print(self.som.training_data[w1])
             #print(self.som.training_data[w2])
-            self.update_som_image(self.som.graphDif(self.som.training_data[w1],self.som.training_data[w2]))
+            self.update_som_image(self.som.graphDif(self.som.dict_train_data[w1],self.som.dict_train_data[w2]))
 
     
     def reassign_figure(self, new_figure)->None:
@@ -167,10 +171,11 @@ class interface:
         """
         #print(self.one_word_entry.get())
         #print(self.som.training_data.keys())
-        if self.one_word_entry.get() in self.som.training_data:
+        if self.one_word_entry.get() in self.som.dict_train_data:
             #print(self.som.training_data[self.one_word_entry.get()])
-            self.update_som_image(self.som.graphPoint(self.som.training_data[self.one_word_entry.get()]))
+            self.update_som_image(self.som.graphPoint(self.som.dict_train_data[self.one_word_entry.get()]))
             
-
+    def quit(self)->None:
+        self.root.destroy()
         
 a = interface()

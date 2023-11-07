@@ -21,25 +21,21 @@ class somObject:
             self.n = n
             self.cicles = cicles
             self.training_i = 0
-            self.training_data = dm.csv_read(training_data)
             self.weightsLen = len(self.training_data[0])
             self.learning_rate = learning_rate
-            
             self.weights = []
-            
             self.dictData = {}
         else:
             self.dictData = dm.getJson(somJson)
             self.cicles = cicles
             self.n =  self.dictData['n']
             self.training_i = self.dictData['training_iterations']
-            self.training_data = dm.csv_read_dict(training_data)
             self.weightsLen = self.dictData['weights_length']
             self.learning_rate = learning_rate
-            
             self.weights = self.dictData['weights']
             # self.normsMatrix = self.dictData['norms_matrix']
-            
+        self.training_data = dm.csv_read(self.strt)
+        self.dict_train_data=self.GetDict()
     
     # Regresa un muestreo de los datos de entrenamiento
     def get_sample(self) -> list:
@@ -171,24 +167,23 @@ class somObject:
         bmu_i = math.floor(bmu / self.n) # fila del bmu.
         bum_j = bmu % self.n # columna del bmu.
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
-        plt.plot(bmu_i,bum_j,marker ="x")
+        plt.plot(bmu_i,bum_j,marker ="x",color='black')
         return fig
     
-    def graphDif(self, x:list, y:list):
+    def graphDif(self, v:list, u:list):
         fig=plt.figure()
-        bmux = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
-        bmuy = self.best_matching_unit(y) # Indice del la celula más parecida al dato para entrenamiento.
-        
+        bmu_v = self.best_matching_unit(v) # Índice del la celula más parecida del vector v.
+        bmu_u = self.best_matching_unit(u) # Índice del la celula más parecida del vector u.
         self.createMatrixM()
         
-        x_i = math.floor(bmux/ self.n) # fila del bmu.
-        x_j = bmux % self.n # columna del bmu.
+        v_i = math.floor(bmu_v/ self.n) # fila del bmu del vector v.
+        v_j = bmu_v % self.n # columna del bmu del vector v.
         
-        y_i = math.floor(bmuy/ self.n) # fila del bmu.
-        y_j = bmuy % self.n # columna del bmu.
+        u_i = math.floor(bmu_u/ self.n) # fila del bmu del vector u.
+        u_j = bmu_u % self.n # columna del bmu del vector u.
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
-        plt.plot([x_i, y_i],[x_j, y_j])
+        plt.plot([u_i, v_i],[u_j, v_j],color='black')
         return fig
     
     
