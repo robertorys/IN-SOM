@@ -20,7 +20,8 @@ class interface:
         self.root.grid_columnconfigure(2,uniform='cols_g1')
         self.root.grid_rowconfigure(2, uniform="rows_g1")
         #Objeto SOM para obtener el SOM, entrenar etc.
-        self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
+        # self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
+        
         self.recent_figure=None
         # Frame1: Es para el som
         #Creacion del Frame dedicado a graficar el resultado del SOM
@@ -28,21 +29,24 @@ class interface:
         fm1.grid(row=0, column=0, rowspan=2,columnspan=2, sticky='nsew')
         #Canvas que maneja la figura de matplot para graficar sobre el tkinter
         self.canvas_som=None
-        self.update_som_image(self.som.graph())
+        #self.update_som_image(self.som.graph())
         
         # Frame2: Una palabra
         #Creacion del frame contenedor
         fm2 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm2.grid(row=0, column=2, sticky='nsew')
-
+    
         # Etiqueta
         tk.Label(fm2, text='Una palabra', bg='white').pack()
         # Entrada para una palabra
         #Leer entrada al pulsar boton
         self.one_word_entry=tk.Entry(fm2)
         self.one_word_entry.pack()
-        # botón para una palabra
+        # Botón para una palabra
         tk.Button(fm2, text='Buscar una palabra',command=self.search_word).pack()
+        # Etiqueta de las coordenadas
+        self.txtw1 = tk.StringVar()
+        tk.Label(fm2, textvariable=self.txtw1, bg='white').pack()
 
         # Frame3: Dos palabra
         fm3 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
@@ -56,9 +60,15 @@ class interface:
         self.tw_1w_e.pack()
         self.tw_2w_e=tk.Entry(fm3)
         self.tw_2w_e.pack()
-        #
+        
         # botón para una palabra
         tk.Button(fm3, text='Search',command=self.twoword_search).pack()
+        
+        # Etiqueta de coordenadas de las palabras
+        self.txtw1vs1_1 = tk.StringVar()
+        self.txtw1vs1_2 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.txtw1vs1_1, bg='white').pack()
+        tk.Label(fm3, textvariable=self.txtw1vs1_2, bg='white').pack()
         
 
         # Frame4: Meter archivo y entrenar el som.
@@ -102,6 +112,7 @@ class interface:
             self.som=som.somObject(n,cicles,train_data_path.name,learning_rate=learn_rate)
         else:
             self.som=som.somObject(n,cicles,train_data_path.name)
+        self.som.init_weights()
         self.update_som_image(self.som.graph())
 
     def load_som(self)->None:
@@ -117,30 +128,25 @@ class interface:
             messagebox.showerror("Necesitamos el archivo json que contiene el SOM")
         return
 
-    def save_som(self)->None:
-        name=simpledialog.askstring("Nombre del SOM","Ingrese el nombre : ")
-        if name:
-            file_path=filedialog.asksaveasfile(defaultextension='.json')
-            if file_path:
-                self.som.save(name,file_path.name)
-                messagebox.showinfo("Archivo guardado con exito")
-            else:
-                messagebox.showerror("Error","Se requiere una dirección para guardar")
+    def save_som(self)->None:     
+        file_path=filedialog.asksaveasfile(defaultextension='.json')
+        if file_path:
+            messagebox.showinfo("Archivo guardado con exito")
         else:
-            messagebox.showerror("Error","Se necesita asignar un nombre")
-
+            messagebox.showerror("Error","Se requiere una dirección para guardar")
+        
     def twoword_search(self)->None:
         """
         Si tenemos las 2 palabras en el diccionario entonces usamos graphDIF
         """
         w1=self.tw_1w_e.get()
         w2=self.tw_2w_e.get()
-        #print(w1)
-        #print(w2)
+        
         if w1 in self.som.dict_train_data and w2 in self.som.dict_train_data:
-            #print(self.som.training_data[w1])
-            #print(self.som.training_data[w2])
-            self.update_som_image(self.som.graphDif(self.som.dict_train_data[w1],self.som.dict_train_data[w2]))
+            fig, i_1, j_1, i_2, j_2 = self.som.graphDif(self.som.dict_train_data[w1],self.som.dict_train_data[w2])
+            self.update_som_image(fig)
+            self.txtw1vs1_1.set("("+str(i_1)+","+str(j_1)+")")
+            self.txtw1vs1_2.set("("+str(i_2)+","+str(j_2)+")")
 
     
     def reassign_figure(self, new_figure)->None:
@@ -173,7 +179,11 @@ class interface:
         #print(self.som.training_data.keys())
         if self.one_word_entry.get() in self.som.dict_train_data:
             #print(self.som.training_data[self.one_word_entry.get()])
-            self.update_som_image(self.som.graphPoint(self.som.dict_train_data[self.one_word_entry.get()]))
+            fig, i, j = self.som.graphPoint(self.som.dict_train_data[self.one_word_entry.get()])
+            self.txtw1.set("("+str(i)+","+str(j)+")")
+            self.update_som_image(fig)
+
+        
             
     def quit(self)->None:
         self.root.destroy()

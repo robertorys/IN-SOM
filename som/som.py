@@ -17,6 +17,8 @@ class somObject:
     # Iniciar el som nuevo.
     def __init__(self, n:int, cicles:int, training_data:str, somJson: str = None, learning_rate=0.5):
         self.strt = training_data
+        self.dict_train_data=self.GetDict()
+        self.training_data = dm.csv_read(self.strt)
         if not somJson:
             self.n = n
             self.cicles = cicles
@@ -34,8 +36,6 @@ class somObject:
             self.learning_rate = learning_rate
             self.weights = self.dictData['weights']
             # self.normsMatrix = self.dictData['norms_matrix']
-        self.training_data = dm.csv_read(self.strt)
-        self.dict_train_data=self.GetDict()
     
     # Regresa un muestreo de los datos de entrenamiento
     def get_sample(self) -> list:
@@ -165,10 +165,10 @@ class somObject:
         self.createMatrixM()
         
         bmu_i = math.floor(bmu / self.n) # fila del bmu.
-        bum_j = bmu % self.n # columna del bmu.
+        bmu_j = bmu % self.n # columna del bmu.
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
-        plt.plot(bmu_i,bum_j,marker ="x",color='black')
-        return fig
+        plt.plot(bmu_i,bmu_j,marker ="x",color='black')
+        return fig, bmu_i, bmu_j
     
     def graphDif(self, v:list, u:list):
         fig=plt.figure()
@@ -184,7 +184,7 @@ class somObject:
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot([u_i, v_i],[u_j, v_j],color='black')
-        return fig
+        return fig, v_i, v_j, u_i, u_j
     
     
     
