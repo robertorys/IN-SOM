@@ -61,7 +61,7 @@ class interface:
         self.tw_2w_e=tk.Entry(fm3)
         self.tw_2w_e.pack()
         
-        # botón para una palabra
+        # Botón para dos palabra
         tk.Button(fm3, text='Search',command=self.twoword_search).pack()
         
         # Etiqueta de coordenadas de las palabras
@@ -139,14 +139,16 @@ class interface:
         """
         Si tenemos las 2 palabras en el diccionario entonces usamos graphDIF
         """
-        w1=self.tw_1w_e.get()
-        w2=self.tw_2w_e.get()
+        k1=self.tw_1w_e.get()
+        k2=self.tw_2w_e.get()
         
-        if w1 in self.som.dict_train_data and w2 in self.som.dict_train_data:
-            fig, i_1, j_1, i_2, j_2 = self.som.graphDif(self.som.dict_train_data[w1],self.som.dict_train_data[w2])
-            self.update_som_image(fig)
+        if k1 in self.som.keys_list and k2 in self.som.keys_list:
+            v = self.som.train_dict[k1]
+            u = self.som.train_dict[k2]
+            fig, i_1, j_1, i_2, j_2 = self.som.graphDif(u,v)
             self.txtw1vs1_1.set("("+str(i_1)+","+str(j_1)+")")
             self.txtw1vs1_2.set("("+str(i_2)+","+str(j_2)+")")
+            self.update_som_image(fig)
 
     
     def reassign_figure(self, new_figure)->None:
@@ -177,9 +179,12 @@ class interface:
         """
         #print(self.one_word_entry.get())
         #print(self.som.training_data.keys())
-        if self.one_word_entry.get() in self.som.dict_train_data:
+        
+        key = self.one_word_entry.get()
+        if key in self.som.keys_list:
             #print(self.som.training_data[self.one_word_entry.get()])
-            fig, i, j = self.som.graphPoint(self.som.dict_train_data[self.one_word_entry.get()])
+            v = self.som.train_dict[key]
+            fig, i, j = self.som.graphPoint(v)
             self.txtw1.set("("+str(i)+","+str(j)+")")
             self.update_som_image(fig)
 
