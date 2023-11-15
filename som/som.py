@@ -116,7 +116,7 @@ class somObject:
             # unique_sample = random.sample(self.training_data, 1)[0] # Obtener un dato para el entrenamiento.
             
             key = random.sample(self.keys_list, 1) # Obtener la llave para un dato de entrenamiento.
-            unique_sample = self.train_dict[key]
+            unique_sample = self.train_dict[key[0]]# Al obtener key es una lista de un solo elemento
             bmu = self.best_matching_unit(unique_sample) # Indice del la celula más parecida al dato para entrenamiento.
 
             

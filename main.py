@@ -12,7 +12,7 @@ class interface:
     def __init__(self):
         # Configuración del frame principal 
         self.root = tk.Tk()
-        self.root.attributes('-zoomed', 1)
+        self.root.attributes('-topmost', 1)
         self.root.grid_rowconfigure(0, uniform="rows_g1")
         self.root.grid_rowconfigure(1, uniform="rows_g1")
         self.root.grid_columnconfigure(0,  uniform="cols_g1")
@@ -116,13 +116,17 @@ class interface:
         self.update_som_image(self.som.graph())
 
     def load_som(self)->None:
+        cicles=simpledialog.askinteger("Ciclos","La cantidad de ciclos que se ejecutan para aprendizaje")
+        if not cicles:
+            messagebox.showerror("Necesitamos los ciclos")
+            return
         train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
         if not train_data_path:
             messagebox.showerror("Necesitamos la información de entrenamiento")
             return
         json_path=filedialog.askopenfile(filetypes=[("JSON FILES","*.json")])
         if json_path:
-            self.som=som.somObject(0,0,train_data_path.name,json_path.name)
+            self.som=som.somObject(0,cicles,train_data_path.name,json_path.name)
             self.update_som_image(self.som.graph())
         else:
             messagebox.showerror("Necesitamos el archivo json que contiene el SOM")
@@ -131,6 +135,7 @@ class interface:
     def save_som(self)->None:     
         file_path=filedialog.asksaveasfile(defaultextension='.json')
         if file_path:
+            self.som.save(file_path)
             messagebox.showinfo("Archivo guardado con exito")
         else:
             messagebox.showerror("Error","Se requiere una dirección para guardar")
