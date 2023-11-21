@@ -1,5 +1,6 @@
 import tkinter as tk
 from som import som
+from som import dataManager as dm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from tkinter import filedialog
@@ -22,10 +23,11 @@ class interface:
         #Objeto SOM para obtener el SOM, entrenar etc.
         # self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
         
-        self.recent_figure=None
+        self.recent_figure = None
+
         # Frame1: Es para el som
         #Creacion del Frame dedicado a graficar el resultado del SOM
-        self.som_tk=fm1 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
+        self.som_tk = fm1 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm1.grid(row=0, column=0, rowspan=2,columnspan=2, sticky='nsew')
         #Canvas que maneja la figura de matplot para graficar sobre el tkinter
         self.canvas_som=None
@@ -123,50 +125,75 @@ class interface:
         tk.Button(fm4,text="Nuevo SOM",command=self.new_som).pack()
         tk.Button(fm5,text="Entrenar SOM", command=self.som_training).pack()
         tk.Button(fm6,text='Exit',command=self.quit).pack()
+        tk.Button(fm5,text="Vecindarios", command=self.agrupamiento).pack()
         self.root.mainloop()
+    
+    
+
+    def agrupamiento(self)->None:
+        file_path=filedialog.askopenfile(filetypes=[("csv files", "*.csv")])
+        if not file_path:
+            messagebox.showerror("Se necesita el archivo")
+            return
+        #Lee archivo con lista de palabras
+        palabras=dm.csv_read_dict_woh(file_path)
+        resultado=''
+        for palabra in palabras.keys():
+            resultado+=f"---{palabra}: {palabras[palabra]}---\n"
+            bmu_index=self.som.best_matching_unit(palabras[palabra])
+            vector=self.som.weights[bmu_index]
+            resultado+=f"BMU {som.coor_from_index(bmu_index)}: {vector}"
+            resultado+=f"Distancia: {som.dist_euclid(palabras[palabra], vector)}"
+            for i in range(1,4):
+                resultado+=f"Vecindario {i}:{self.som.vecindario(palabra,i,palabras)}\n"
+        while not save_path:
+            save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
+            if save_path:
+                f=open(save_path,'w')
+                f.write(resultado)
+                f.close()
 
     def som_training(self)->None:
+        cicles = simpledialog.askinteger("Ciclos de entrenamiento","cicles=")
+        if not cicles:
+            messagebox.showerror("Se necesita la dimension del SOM")
+            return
+        self.som.cicles = cicles
         self.som.init_training()
         self.update_som_image(self.som.graph())
 
-    def new_som(self)->None:
+    def new_som(self) -> None:
         n=simpledialog.askinteger("Dimension del SOM","n=")
         if not n:
             messagebox.showerror("Se necesita la dimension del SOM")
             return
-        cicles=simpledialog.askinteger("Ciclos","cicles=")
-        if not cicles:
-            messagebox.showerror("Se necesita la cantidad de ciclos")
-            return
+
         train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
         if not train_data_path:
             messagebox.showerror("Necesitamos la información de entrenamiento")
             return
-        learn_rate=simpledialog.askfloat("Razon de aprendizaje","leaning_rate=")
+
+        learn_rate=simpledialog.askfloat("Tasa de aprendizaje","leaning_rate=")
         if learn_rate:
-            self.som=som.somObject(n,cicles,train_data_path.name,learning_rate=learn_rate)
+            self.som=som.somObject(n,0,train_data_path.name,learning_rate=learn_rate)
         else:
-            self.som=som.somObject(n,cicles,train_data_path.name)
+            self.som=som.somObject(n,0,train_data_path.name)
+
         self.som.init_weights()
         self.update_som_image(self.som.graph())
 
-    def load_som(self)->None:
-        #cicles=simpledialog.askinteger("Ciclos","La cantidad de ciclos que se ejecutan para aprendizaje")
-        cicles = 1
-        if not cicles:
-            messagebox.showerror("Necesitamos los ciclos")
-            return
+    def load_som(self) -> None:
         train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
         if not train_data_path:
             messagebox.showerror("Necesitamos la información de entrenamiento")
             return
         json_path=filedialog.askopenfile(filetypes=[("JSON FILES","*.json")])
         if json_path:
-            self.som=som.somObject(0,cicles,train_data_path.name,json_path.name)
+            self.som=som.somObject(0,0,train_data_path.name,json_path.name)
             self.update_som_image(self.som.graph())
         else:
             messagebox.showerror("Necesitamos el archivo json que contiene el SOM")
-        return
+            return
 
     def save_som(self)->None:     
         file_path=filedialog.asksaveasfile(defaultextension='.json')

@@ -124,15 +124,13 @@ class somObject:
             # i / n = fila
             # i % n = columna
             
-            bmu_i = math.floor(bmu / self.n) # fila del bmu.
-            bum_j = bmu % self.n # columna del bmu.
+            bmu_i , bmu_j = coor_from_index(bmu)
             
             wi = 0
             for w in self.weights:
-                wi_i = math.floor(wi / self.n) # fila del wi.
-                wi_j = wi % self.n # columna del wi.
+                wi_i , wi_j = coor_from_index(wi)
                 
-                if dist_manhattan([bmu_i, bum_j], [wi_i, wi_j]) < nr_t:
+                if dist_manhattan([bmu_i, bmu_j], [wi_i, wi_j]) < nr_t:
                     self.weights[wi] = self.update_weight(unique_sample, w, lr_t)
                 wi += 1
             self.training_i += 1
@@ -143,6 +141,22 @@ class somObject:
             count += 1
         
         self.createMatrixM()
+
+    def vecindario(self,key, vecinity:int, list_keys:list)->list:
+        """
+        Parametros, llave, vecindario
+        De una palabra cuales palabras de la lista pertenecen a su vecindario de distancia vecinity
+
+        Regresa una lista de palabras que si pertenezcan al vecindario de key de list_keys
+        """
+        bmu=coor_from_index(self.best_matching_unit(key))
+        bmu_keys = [coor_from_index(self.best_matching_unit(k)) for k in list_keys]
+        matriz = []
+        for i in range(k[0]-vecinity,k[0]+vecinity+1):
+            for j in range(k[1]-vecinity,k[1]+vecinity+1):
+                matriz.append((i,j))
+        vecinos=[indice for indice in range(len(bmu_keys)) if bmu_keys[indice] in matriz]
+        return vecinos
     
     def createMatrixM(self) -> None:
         self.normsMatrix=[]
@@ -165,8 +179,7 @@ class somObject:
         fig=plt.figure()
         bmu = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
     
-        bmu_i = math.floor(bmu / self.n) # fila del bmu.
-        bmu_j = bmu % self.n # columna del bmu.
+        bmu_i,bmu_j = coor_from_index(bmu)
         
         # Consultar vector del bmu.
         bmu_v = self.weights[bmu]
@@ -181,11 +194,9 @@ class somObject:
         bmu_v = self.best_matching_unit(v) # Índice del la celula más parecida del vector v.
         bmu_u = self.best_matching_unit(u) # Índice del la celula más parecida del vector u.
         
-        v_i = math.floor(bmu_v/ self.n) # fila del bmu del vector v.
-        v_j = bmu_v % self.n # columna del bmu del vector v.
+        v_i,v_j = coor_from_index(bmu_v)
         
-        u_i = math.floor(bmu_u/ self.n) # fila del bmu del vector u.
-        u_j = bmu_u % self.n # columna del bmu del vector u.
+        u_i,u_j = coor_from_index(bmu_v)
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot([u_i, v_i],[u_j, v_j],color='black')
@@ -252,3 +263,8 @@ def cos_simi(x:list, y:list) -> float:
     mod_y = math.sqrt(mod_y)
     
     return pp/(mod_x * mod_y)
+
+def coor_from_index(index:int)->tuple:
+    bmu_i = math.floor(bmu / self.n) # fila del bmu.
+    bmu_j = bmu % self.n # columna del bmu.
+    return (bmu_i,bmu_j)
