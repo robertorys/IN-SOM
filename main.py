@@ -47,12 +47,21 @@ class interface:
         # Etiqueta de las coordenadas
         self.txtw1 = tk.StringVar()
         tk.Label(fm2, textvariable=self.txtw1, bg='white').pack()
-
+        # Etiqueta del bmu
+        self.bmu_w = tk.StringVar()
+        tk.Label(fm2, textvariable=self.bmu_w, bg='white').pack()
+        # Etiqueta del vector para la palabra
+        self.v_w = tk.StringVar()
+        tk.Label(fm2, textvariable=self.v_w, bg='white').pack()
+        # Etiqueta para la distancia entre bmu y el vector de la palabra
+        self.w_dist = tk.StringVar()
+        tk.Label(fm2, textvariable=self.w_dist, bg='white').pack()
+        
         # Frame3: Dos palabra
         fm3 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm3.grid(row=1, column=2, sticky='nsew')
 
-        # Entique
+        # Entiqueta
         tk.Label(fm3, text='Two words', bg='white').pack()
         # Entrada para una palabra
         #Two Word First Word Entry
@@ -70,6 +79,35 @@ class interface:
         tk.Label(fm3, textvariable=self.txtw1vs1_1, bg='white').pack()
         tk.Label(fm3, textvariable=self.txtw1vs1_2, bg='white').pack()
         
+        # Etiqueta del bmu1
+        self.bmu1vs1_w1 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.bmu1vs1_w1, bg='white').pack()
+        # Etiqueta del bmu2
+        self.bmu1vs1_w2 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.bmu1vs1_w2, bg='white').pack()
+        
+        # Etiqueta del vector para la palabra 1
+        self.v1vs1_w1 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.v1vs1_w1, bg='white').pack()
+        # Etiqueta del vector para la palabra 2
+        self.u1vs1_w2 = tk.StringVar()  
+        tk.Label(fm3, textvariable=self.u1vs1_w2, bg='white').pack()
+        
+        # Etiqueta para la distancia entre bmu 
+        self.bmu1vs1 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.bmu1vs1, bg='white').pack()
+        
+        # Etiqueta para la distancia entre palabras
+        self.w1vs1 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.w1vs1, bg='white').pack()
+        
+        # Etiqueta para la distancia entre bmu1 y w1
+        self.bmu_w1 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.bmu_w1, bg='white').pack()
+        
+        # Etiqueta para la distancia entre bmu1 y w1
+        self.bmu_w2 = tk.StringVar()
+        tk.Label(fm3, textvariable=self.bmu_w2, bg='white').pack()
 
         # Frame4: Meter archivo y entrenar el som.
         fm4 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
@@ -78,11 +116,8 @@ class interface:
         fm5.grid(row=2,column=1,sticky='nsew')
         fm6=tk.Frame(self.root,bg='white',highlightbackground="black", highlightthickness=2)
         fm6.grid(row=2,column=2,sticky='nsew')
-        # Entique
-        #tk.Label(fm4, text='Guardar SOM', bg='white').pack()
-        # Entrada para una palabra
-        #tk.filedialog(fm4, mode='r').pack()
-        # botón para una palabra
+
+        # Botones
         tk.Button(fm6,text='Guardar SOM',command=self.save_som).pack()
         tk.Button(fm4,text="Cargar SOM",command=self.load_som).pack()
         tk.Button(fm4,text="Nuevo SOM",command=self.new_som).pack()
@@ -116,7 +151,8 @@ class interface:
         self.update_som_image(self.som.graph())
 
     def load_som(self)->None:
-        cicles=simpledialog.askinteger("Ciclos","La cantidad de ciclos que se ejecutan para aprendizaje")
+        #cicles=simpledialog.askinteger("Ciclos","La cantidad de ciclos que se ejecutan para aprendizaje")
+        cicles = 1
         if not cicles:
             messagebox.showerror("Necesitamos los ciclos")
             return
@@ -150,9 +186,24 @@ class interface:
         if k1 in self.som.keys_list and k2 in self.som.keys_list:
             v = self.som.train_dict[k1]
             u = self.som.train_dict[k2]
-            fig, i_1, j_1, i_2, j_2 = self.som.graphDif(u,v)
-            self.txtw1vs1_1.set("("+str(i_1)+","+str(j_1)+")")
-            self.txtw1vs1_2.set("("+str(i_2)+","+str(j_2)+")")
+            
+            fig, i_1, j_1, i_2, j_2, bmu_v, bmu_u = self.som.graphDif(u,v)
+            
+            self.txtw1vs1_1.set("Coordenadas para bmu de w1: ("+str(i_1)+","+str(j_1)+")")
+            self.txtw1vs1_2.set("Coordenadas para bmu de w2: ("+str(i_2)+","+str(j_2)+")")
+            
+            self.bmu1vs1_w1.set("Bmu 1: \n"+str(self.vector_round(bmu_v, 2)))
+            self.bmu1vs1_w2.set("Bmu 2: \n"+str(self.vector_round(bmu_u, 2)))
+            
+            self.v1vs1_w1.set("Vector w1: \n"+str(self.vector_round(v, 2)))
+            self.u1vs1_w2.set("Vector w2: \n"+str(self.vector_round(u, 2)))
+            
+            self.bmu_w1.set("Distancia w1 - bmu1: \n"+str(round(som.dist_euclid(bmu_v,v), 2)))
+            self.bmu_w2.set("Distancia w2 - bmu2: \n"+str(round(som.dist_euclid(bmu_u,u), 2)))
+            
+            self.bmu1vs1.set("Distancia bmu: \n" + str(round(som.dist_manhattan(bmu_v,bmu_u), 2)))
+            self.w1vs1.set("Distancia palabras: \n" + str(round(som.dist_euclid(u,v), 2)))
+            
             self.update_som_image(fig)
 
     
@@ -189,13 +240,22 @@ class interface:
         if key in self.som.keys_list:
             #print(self.som.training_data[self.one_word_entry.get()])
             v = self.som.train_dict[key]
-            fig, i, j = self.som.graphPoint(v)
-            self.txtw1.set("("+str(i)+","+str(j)+")")
+            fig, i, j, bmu = self.som.graphPoint(v)
+
+            self.txtw1.set("Coordenadas: ("+str(i)+","+str(j)+")")
+            self.bmu_w.set("Bmu : \n"+str(self.vector_round(bmu, 2)))
+            self.v_w.set("Vector : \n"+str(self.vector_round(v, 2)))
+            self.w_dist.set("Distancia: \n" + str(round(som.dist_euclid(bmu,v), 2)))
+            
             self.update_som_image(fig)
 
-        
-            
     def quit(self)->None:
         self.root.destroy()
+    
+    def vector_round(self, v: list, n: int) -> list:
+        u = []
+        for i in v:
+            u.append(round(i, n))
+        return u
         
 a = interface()

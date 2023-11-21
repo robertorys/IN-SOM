@@ -137,9 +137,6 @@ class somObject:
                 wi += 1
             self.training_i += 1
             
-            
-            bmu = self.best_matching_unit(unique_sample) # Indice del la celula más parecida al dato para entrenamiento.
-
             if count == 100:
                 print('cicles:', self.training_i)
                 count = 0
@@ -158,7 +155,7 @@ class somObject:
             self.normsMatrix.append(ni)
             
     def graph(self) -> None:
-        fig, axes = plt.subplots(1,1)
+        fig=plt.figure()
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.colorbar()
         return fig
@@ -170,9 +167,14 @@ class somObject:
     
         bmu_i = math.floor(bmu / self.n) # fila del bmu.
         bmu_j = bmu % self.n # columna del bmu.
+        
+        # Consultar vector del bmu.
+        bmu_v = self.weights[bmu]
+        
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot(bmu_i,bmu_j,marker ="x",color='black')
-        return fig, bmu_i, bmu_j
+        
+        return fig, bmu_i, bmu_j, bmu_v
     
     def graphDif(self, v:list, u:list):
         fig=plt.figure()
@@ -187,7 +189,7 @@ class somObject:
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot([u_i, v_i],[u_j, v_j],color='black')
-        return fig, v_i, v_j, u_i, u_j
+        return fig, v_i, v_j, u_i, u_j, self.weights[bmu_v], self.weights[bmu_u]
     
     
     
