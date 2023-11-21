@@ -124,11 +124,11 @@ class somObject:
             # i / n = fila
             # i % n = columna
             
-            bmu_i , bmu_j = coor_from_index(bmu)
+            bmu_i , bmu_j = self.coor_from_index(bmu)
             
             wi = 0
             for w in self.weights:
-                wi_i , wi_j = coor_from_index(wi)
+                wi_i , wi_j = self.coor_from_index(wi)
                 
                 if dist_manhattan([bmu_i, bmu_j], [wi_i, wi_j]) < nr_t:
                     self.weights[wi] = self.update_weight(unique_sample, w, lr_t)
@@ -179,7 +179,7 @@ class somObject:
         fig=plt.figure()
         bmu = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
     
-        bmu_i,bmu_j = coor_from_index(bmu)
+        bmu_i,bmu_j = self.coor_from_index(bmu)
         
         # Consultar vector del bmu.
         bmu_v = self.weights[bmu]
@@ -194,15 +194,18 @@ class somObject:
         bmu_v = self.best_matching_unit(v) # Índice del la celula más parecida del vector v.
         bmu_u = self.best_matching_unit(u) # Índice del la celula más parecida del vector u.
         
-        v_i,v_j = coor_from_index(bmu_v)
+        v_i,v_j = self.coor_from_index(bmu_v)
         
-        u_i,u_j = coor_from_index(bmu_v)
+        u_i,u_j = self.coor_from_index(bmu_u)
         
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.plot([u_i, v_i],[u_j, v_j],color='black')
         return fig, v_i, v_j, u_i, u_j, self.weights[bmu_v], self.weights[bmu_u]
     
-    
+    def coor_from_index(self, index:int)->tuple:
+        bmu_i = math.floor(index / self.n) # fila del bmu.
+        bmu_j = index % self.n # columna del bmu.
+        return (bmu_i,bmu_j)
     
     # ---------- Formato Json ---------- #
     
@@ -264,7 +267,3 @@ def cos_simi(x:list, y:list) -> float:
     
     return pp/(mod_x * mod_y)
 
-def coor_from_index(index:int)->tuple:
-    bmu_i = math.floor(bmu / self.n) # fila del bmu.
-    bmu_j = bmu % self.n # columna del bmu.
-    return (bmu_i,bmu_j)

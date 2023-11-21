@@ -45,7 +45,3 @@ def saveJson(dic: dict, fileName: str) -> None:
     with open(fileName, 'w') as f:
         json.dump(dic, f)
 
-def txt_read(txtFile)->list:
-    data=[]
-    with open(txtFile,'r') as f:
-        
