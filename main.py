@@ -123,29 +123,27 @@ class interface:
         tk.Button(fm6,text='Guardar SOM',command=self.save_som).pack()
         tk.Button(fm4,text="Cargar SOM",command=self.load_som).pack()
         tk.Button(fm4,text="Nuevo SOM",command=self.new_som).pack()
+        tk.Button(fm4,text="Cargar base de datos",command=self.load_database).pack()
         tk.Button(fm5,text="Entrenar SOM", command=self.som_training).pack()
         tk.Button(fm6,text='Exit',command=self.quit).pack()
         tk.Button(fm5,text="Vecindarios", command=self.agrupamiento).pack()
         self.root.mainloop()
     
-    
-
     def agrupamiento(self)->None:
-        file_path=filedialog.askopenfile(filetypes=[("csv files", "*.csv")])
-        if not file_path:
-            messagebox.showerror("Se necesita el archivo")
+        if not self.som.keys_list:
+            messagebox.showerror("Se necesita una base de datos")
             return
         #Lee archivo con lista de palabras
-        palabras=dm.csv_read_dict_woh(file_path)
         resultado=''
-        for palabra in palabras.keys():
-            resultado+=f"---{palabra}: {palabras[palabra]}---\n"
-            bmu_index=self.som.best_matching_unit(palabras[palabra])
+        for palabra in self.som.train_dict.keys():
+            resultado+=f"---{palabra}: {self.som.train_dict[palabra]}---\n"
+            bmu_index=self.som.best_matching_unit(self.som.train_dict[palabra])
             vector=self.som.weights[bmu_index]
-            resultado+=f"BMU {som.coor_from_index(bmu_index)}: {vector}"
-            resultado+=f"Distancia: {som.dist_euclid(palabras[palabra], vector)}"
+            resultado+=f"BMU {self.som.coor_from_index(bmu_index)}: {vector}"
+            resultado+=f"Distancia: {som.dist_euclid(self.som.train_dict[palabra], vector)}"
             for i in range(1,4):
-                resultado+=f"Vecindario {i}:{self.som.vecindario(palabra,i,palabras)}\n"
+                resultado+=f"Vecindario {i}:{self.som.vecindario(palabra,i)}\n"
+        save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
         while not save_path:
             save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
             if save_path:
@@ -155,6 +153,9 @@ class interface:
 
     def som_training(self)->None:
         cicles = simpledialog.askinteger("Ciclos de entrenamiento","cicles=")
+        if not self.som.keys_list:
+            messagebox.showerror("Se necesita una base de datos")
+            return
         if not cicles:
             messagebox.showerror("Se necesita la dimension del SOM")
             return
@@ -168,33 +169,26 @@ class interface:
             messagebox.showerror("Se necesita la dimension del SOM")
             return
 
-        train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
-        if not train_data_path:
-            messagebox.showerror("Necesitamos la información de entrenamiento")
-            return
-
         learn_rate=simpledialog.askfloat("Tasa de aprendizaje","leaning_rate=")
         if learn_rate:
-            self.som=som.somObject(n,0,train_data_path.name,learning_rate=learn_rate)
-        else:
-            self.som=som.somObject(n,0,train_data_path.name)
-
-        self.som.init_weights()
-        self.update_som_image(self.som.graph())
+            self.som = som.somObject(n,learning_rate=learn_rate)
 
     def load_som(self) -> None:
-        train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
-        if not train_data_path:
-            messagebox.showerror("Necesitamos la información de entrenamiento")
-            return
         json_path=filedialog.askopenfile(filetypes=[("JSON FILES","*.json")])
         if json_path:
-            self.som=som.somObject(0,0,train_data_path.name,json_path.name)
+            self.som=som.somObject(0,json_path.name)
             self.update_som_image(self.som.graph())
         else:
             messagebox.showerror("Necesitamos el archivo json que contiene el SOM")
             return
 
+    def load_database(self) -> None:
+        train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
+        if not train_data_path:
+            messagebox.showerror("Se un csv con los datos de entrenamiento")
+            return
+        self.som.set_training_data(train_data_path.name)
+            
     def save_som(self)->None:     
         file_path=filedialog.asksaveasfile(defaultextension='.json')
         if file_path:
@@ -254,7 +248,7 @@ class interface:
         self.canvas_som=FigureCanvasTkAgg(self.recent_figure,master=self.som_tk)
         self.canvas_som.get_tk_widget().pack()
         
-
+    
     def search_word(self):
         """
         Si la palabra esta en el diccionario entonces

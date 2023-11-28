@@ -1,11 +1,14 @@
 # Datos de un objeto som:
-# - Matriz de pesos.
+# - Nombre del som.
+# - Tamaño de la matriz.
 # - Iteraciones para el entrenamiento.
 # - Tasa de aprendizaje.
-# - Datos de entrenamiento (dirección del csv)
+# - Longitud del vector de peso.
+# - Matriz de pesos.
 
 from som import dataManager as dm
 import matplotlib.pyplot as plt
+import sys
 import random
 import math
 
@@ -13,36 +16,45 @@ import math
 class somObject:
     normsMatrix = []
 
-    # Iniciar el som nuevo.
-    def __init__(self, n:int, cicles:int, training_data:str, somJson: str = None, learning_rate=0.5):
-        self.strt = training_data
-        
-        # self.dict_train_data=self.GetDict()
-        self.train_dict = dm.csv_read_dict(training_data)
-        self.keys_list = list(self.train_dict.keys())
-        # self.training_data = dm.csv_read(self.strt)
+    # Iniciar el nuevo SOM.
+    def __init__(self, n:int, somJson: str = None, learning_rate=0.5):
         if not somJson:
-            self.n = n
-            self.cicles = cicles
-            self.training_i = 0
-            # self.weightsLen = len(self.training_data[0])
-            key = self.keys_list[0]
-            self.weightsLen = len(self.train_dict[key])
-            self.learning_rate = learning_rate
-            self.weights = []
+            self.n = n # Tamaño de matriz para los pesos.
+            self.training_i = 0 # Cantidad de iteraciones actuales del entrenamiento.
+            self.learning_rate = learning_rate # Taza de aprendizaje.
+            self.weights = [] # Lista de pesos.
+            self.new = True
         else:
-            self.jsonData = dm.getJson(somJson)
-            self.cicles = cicles
-            self.n =  self.jsonData['n']
-            self.training_i = self.jsonData['training_iterations']
-            self.weightsLen = self.jsonData['weights_length']
-            self.learning_rate = learning_rate
-            self.weights = self.jsonData['weights']
-            self.createMatrixM()
+            self.jsonData = dm.getJson(somJson) # Json de los datos de un SOM.
+            self.n =  self.jsonData['n'] # Tamaño de matriz para los pesos.
+            self.training_i = self.jsonData['training_iterations'] # Cantidad de iteraciones actuales del entrenamiento.
+            self.weightsLen = self.jsonData['weights_length'] # Tamaño de los vestores de entrenamiento.
+            self.learning_rate = learning_rate # Taza de aprendizaje.
+            self.weights = self.jsonData['weights'] # Lista de pesos.
+            self.new = False
+            self.createMatrixM() # Matriz (lista de listas) de nomrmas de los pesos.
+        self.train_dict = None
+        self.keys_list = None
+        self.weightsLen = 0
+            
+    def set_training_data(self, training_data:str) -> None:
+        """ Estable los datos para entrenamiento y calculo de vacinos.
+
+        Args:
+            training_data (str): Dirección de un csv con los datos de entranamiento.
+        """
+        self.train_dict = dm.csv_read_dict(training_data) # Diccionario para los datos de entrenamiento ('key':'vector').
+        self.keys_list = list(self.train_dict.keys()) #  Lista de las llaves del diccionario 'train_dict'.
+        key = self.keys_list[0] 
+        self.weightsLen = len(self.train_dict[key]) # Tamaño de los vestores de entrenamiento.
             
     
-    # Regresa una muestra de los datos de entrenamiento
     def get_sample(self) -> list:
+        """ Regresa un muestreo de los datos de entranamiento.
+
+        Returns:
+            list: Lista de las llaves de los datos de muestreo.
+        """
         tdl = len(self.keys_list)
         
         if tdl <= self.n:
@@ -50,8 +62,12 @@ class somObject:
         else:
             return random.sample(self.keys_list, self.n)
     
-    # Regresa el valor maximo y minimo de una muestra de los datos de entrenamiento.
-    def get_max_min(self) -> list:
+    def get_max_min(self) -> tuple:
+        """ Regresa el valor maximo y minimo de una muestra de los datos de entrenamiento.
+
+        Returns:
+            tuple: regresa una tupla de done el primer elemento es el minimo y el segundo es el máximo.
+        """
         sample = self.get_sample()
         max = 0
         min = 1000  
@@ -66,9 +82,10 @@ class somObject:
                 min = vector[0]
         return min, max
                 
-    
-    # Inicialización de la matriz de pesos.
     def init_weights(self):
+        """ 
+        Inicializa la matriz de pesos con una distribución unifroma con valores maximos y minimos de una muestra.
+        """
         min, max = self.get_max_min()
         for i in range(self.n**2):
             w = []
@@ -77,9 +94,16 @@ class somObject:
             self.weights.append(w)
         self.createMatrixM()
         
-    # Regresa en index de la mejor celula de la matriz de pesos.
     def best_matching_unit(self, x:list) -> int:
-        min = 10000
+        """ Regresa el índice de la mejor celula de la matriz de pesos.
+
+        Args:
+            x (list): Vector para buscar la celula que más se parace.
+
+        Returns:
+            int: Índice de la célula más parecida.
+        """
+        min = sys.maxsize
         index = 0
         for w in self.weights:
             d = dist_euclid(x, w)
@@ -90,15 +114,29 @@ class somObject:
                 
         return bmu_i
         
-
-    # Actualiza los pesos de una celula.
     def update_weight(self, bmu:list, w:list, lr_t:float) -> list:
+        """ Actualiza los pesos de una celula con un vector w.
+
+        Args:
+            bmu (list): Best Matching Unit (bmu) para 'w'.
+            w (list): Vector de un elemento de datos de entrenamiento. 
+            lr_t (float): tasa de aprendizaje.
+
+        Returns:
+            list: Nuevo vector para la celula.
+        """
         for i in range(len(w)):
             w[i] = w[i] + lr_t * (bmu[i] - w[i])  
         return w
             
-    # Inicia el entrenamiento.
     def init_training(self):
+        """
+            Inicia el entrenamiento para el SOM.
+        """
+        
+        if self.new:
+            self.init_weights()
+        
         count = 1
         lambda_ = self.cicles / 2
         nr_t0 = self.n / 4
@@ -113,13 +151,10 @@ class somObject:
             # Calculete learning rate 
             lr_t = self.learning_rate * math.exp(-t/lambda_)
             
-            # unique_sample = random.sample(self.training_data, 1)[0] # Obtener un dato para el entrenamiento.
-            
             key = random.sample(self.keys_list, 1) # Obtener la llave para un dato de entrenamiento.
             unique_sample = self.train_dict[key[0]]# Al obtener key es una lista de un solo elemento
             bmu = self.best_matching_unit(unique_sample) # Indice del la celula más parecida al dato para entrenamiento.
 
-            
             # Actualización de los vecinos.
             # i / n = fila
             # i % n = columna
@@ -141,24 +176,35 @@ class somObject:
             count += 1
         
         self.createMatrixM()
+        
+    
 
-    def vecindario(self,key, vecinity:int, list_keys:list)->list:
-        """
-        Parametros, llave, vecindario
-        De una palabra cuales palabras de la lista pertenecen a su vecindario de distancia vecinity
+    def vecindario(self, key, vecinity:int) -> list:
+        """ De una palabra (llave) cuales palabras (llaves) de la lista pertenecen a su vecindario de distancia 'vecinity'.
 
-        Regresa una lista de palabras que si pertenezcan al vecindario de key de list_keys
+        Args:
+            key (_type_): Llave para un dato de entrenamiento.
+            vecinity (int): Distancia del vecindario.
+            list_keys (list): Lista de llaves para comparar si pertenece al vecindario.
+
+        Returns:
+            list: Lista de llaves que si pertenencen al veciendario.
         """
-        bmu=coor_from_index(self.best_matching_unit(key))
-        bmu_keys = [coor_from_index(self.best_matching_unit(k)) for k in list_keys]
-        matriz = []
-        for i in range(k[0]-vecinity,k[0]+vecinity+1):
-            for j in range(k[1]-vecinity,k[1]+vecinity+1):
-                matriz.append((i,j))
-        vecinos=[indice for indice in range(len(bmu_keys)) if bmu_keys[indice] in matriz]
+        bmu_key=self.best_matching_unit(self.train_dict[key])
+        bmu_keys = [self.best_matching_unit(self.train_dict[k]) for k in self.keys_list] # Lista de indices del 'bmu' de cada llave.
+        matriz = [] # Lista que contiene todas los indices del vecindario para 'key'.
+        
+        for i in range(- vecinity, vecinity + 1):
+            for j in range(- vecinity, vecinity + 1):
+                matriz.append((i * self.n + j) + bmu_key)
+                
+        vecinos = [indice for indice in range(len(bmu_keys)) if bmu_keys[indice] in matriz and bmu_keys[indice] != bmu_key]
         return vecinos
     
     def createMatrixM(self) -> None:
+        """
+         Creación de una maatriz de normas de los vectores de pesos.
+        """
         self.normsMatrix=[]
         index = 0
         for i in range(self.n):
@@ -168,14 +214,26 @@ class somObject:
                 index += 1
             self.normsMatrix.append(ni)
             
-    def graph(self) -> None:
+    def graph(self) -> plt.figure:
+        """ Grafica la matriz de pesos del SOM.
+
+        Returns:
+            plt.figure: Una figura de matplotlib.pyplot.figure
+        """
         fig=plt.figure()
         plt.pcolor(self.normsMatrix, cmap='jet_r')  # Mapa de calor de la distancia de las unidades
         plt.colorbar()
         return fig
         
-    
-    def graphPoint(self, x:list):
+    def graphPoint(self, x:list) -> plt.figure:
+        """ Grafica la matriz de pesos del SOM y la ubicación del bmu para un vector.
+
+        Args:
+            x (list): Vector para buscar su 'bmu'.
+
+        Returns:
+            plt.figure: Una figura de matplotlib.pyplot.figure
+        """
         fig=plt.figure()
         bmu = self.best_matching_unit(x) # Indice del la celula más parecida al dato para entrenamiento.
     
@@ -189,7 +247,16 @@ class somObject:
         
         return fig, bmu_i, bmu_j, bmu_v
     
-    def graphDif(self, v:list, u:list):
+    def graphDif(self, v:list, u:list) -> plt.figure:
+        """ Grafica la matriz de pesos del SOM y una recta entre dos vector de su 'bmu'.
+
+        Args:
+            v (list): Vector v para una palabra.
+            u (list): Vector u para una palabra.
+
+        Returns:
+            plt.figure: Una figura de matplotlib.pyplot.figure
+        """
         fig=plt.figure()
         bmu_v = self.best_matching_unit(v) # Índice del la celula más parecida del vector v.
         bmu_u = self.best_matching_unit(u) # Índice del la celula más parecida del vector u.
@@ -203,6 +270,14 @@ class somObject:
         return fig, v_i, v_j, u_i, u_j, self.weights[bmu_v], self.weights[bmu_u]
     
     def coor_from_index(self, index:int)->tuple:
+        """ Coordenadas de tipo matriz para una lista de listas.
+
+        Args:
+            index (int): índice de una lista.
+
+        Returns:
+            tuple: Regresa los dos índices (i,j).
+        """
         bmu_i = math.floor(index / self.n) # fila del bmu.
         bmu_j = index % self.n # columna del bmu.
         return (bmu_i,bmu_j)
@@ -266,4 +341,3 @@ def cos_simi(x:list, y:list) -> float:
     mod_y = math.sqrt(mod_y)
     
     return pp/(mod_x * mod_y)
-
