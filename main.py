@@ -133,21 +133,27 @@ class interface:
         if not self.som.keys_list:
             messagebox.showerror("Se necesita una base de datos")
             return
+        max_vecinity=simpledialog.askinteger("Maxima Vecindad","max_vecinity=")
+        if not max_vecinity or max_vecinity<=1:
+            messagebox.showerror("Se necesita un valor valido")
+            return
         #Lee archivo con lista de palabras
         resultado=''
+        index=0
         for palabra in self.som.train_dict.keys():
-            resultado+=f"---{palabra}: {self.som.train_dict[palabra]}---\n"
+            resultado+=f"---#{index} {palabra}: {self.som.train_dict[palabra]}---\n"
             bmu_index=self.som.best_matching_unit(self.som.train_dict[palabra])
             vector=self.som.weights[bmu_index]
-            resultado+=f"BMU {self.som.coor_from_index(bmu_index)}: {vector}"
-            resultado+=f"Distancia: {som.dist_euclid(self.som.train_dict[palabra], vector)}"
-            for i in range(1,4):
+            resultado+=f"BMU {self.som.coor_from_index(bmu_index)}: {vector}\n"
+            resultado+=f"Distancia: {som.dist_euclid(self.som.train_dict[palabra], vector)}\n"
+            for i in range(1,max_vecinity+1):
                 resultado+=f"Vecindario {i}:{self.som.vecindario(palabra,i)}\n"
-        save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
+            index+=1
+        save_path=None
         while not save_path:
             save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
             if save_path:
-                f=open(save_path,'w')
+                f=open(save_path.name,'w')
                 f.write(resultado)
                 f.close()
 
