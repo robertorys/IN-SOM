@@ -198,7 +198,8 @@ class somObject:
             for j in range(- vecinity, vecinity + 1):
                 matriz.append((i * self.n + j) + bmu_key)
                 
-        vecinos = [indice for indice in range(len(bmu_keys)) if bmu_keys[indice] in matriz and bmu_keys[indice] != bmu_key]
+        vecinos_indice = [indice for indice in range(len(bmu_keys)) if bmu_keys[indice] in matriz and bmu_keys[indice] != bmu_key]
+        vecinos=[self.keys_list[indice] for indice in vecinos_indice ]
         return vecinos
     
     def createMatrixM(self) -> None:

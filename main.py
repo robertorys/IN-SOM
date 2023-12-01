@@ -6,6 +6,7 @@ from matplotlib.figure import Figure
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
+from tkinter import ttk
 import matplotlib.pyplot as plt
 
 class interface:
@@ -14,12 +15,12 @@ class interface:
         # Configuración del frame principal 
         self.root = tk.Tk()
         self.root.attributes('-topmost', 1)
-        self.root.grid_rowconfigure(0, uniform="rows_g1")
-        self.root.grid_rowconfigure(1, uniform="rows_g1")
-        self.root.grid_columnconfigure(0,  uniform="cols_g1")
-        self.root.grid_columnconfigure(1,  uniform="cols_g1")
-        self.root.grid_columnconfigure(2,uniform='cols_g1')
-        self.root.grid_rowconfigure(2, uniform="rows_g1")
+        self.root.grid_rowconfigure(0, uniform="rows_g1",weight=1)
+        self.root.grid_rowconfigure(1, uniform="rows_g1",weight=1)
+        self.root.grid_columnconfigure(0,  uniform="cols_g1",weight=1)
+        self.root.grid_columnconfigure(1,  uniform="cols_g1",weight=1)
+        self.root.grid_columnconfigure(2,uniform='cols_g1',weight=1)
+        self.root.grid_rowconfigure(2, uniform="rows_g1",weight=1)
         #Objeto SOM para obtener el SOM, entrenar etc.
         # self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
         
@@ -118,7 +119,7 @@ class interface:
         fm5.grid(row=2,column=1,sticky='nsew')
         fm6=tk.Frame(self.root,bg='white',highlightbackground="black", highlightthickness=2)
         fm6.grid(row=2,column=2,sticky='nsew')
-
+        
         # Botones
         tk.Button(fm6,text='Guardar SOM',command=self.save_som).pack()
         tk.Button(fm4,text="Cargar SOM",command=self.load_som).pack()
@@ -127,6 +128,12 @@ class interface:
         tk.Button(fm5,text="Entrenar SOM", command=self.som_training).pack()
         tk.Button(fm6,text='Exit',command=self.quit).pack()
         tk.Button(fm5,text="Vecindarios", command=self.agrupamiento).pack()
+        
+        self.progress_text_key=tk.StringVar()
+        tk.Label(fm5,textvariable=self.progress_text_key,bg='white').pack()
+        self.progress_text_vec=tk.StringVar()
+        tk.Label(fm5,textvariable=self.progress_text_vec,bg='white').pack()
+        
         self.root.mainloop()
     
     def agrupamiento(self)->None:
@@ -140,22 +147,28 @@ class interface:
         #Lee archivo con lista de palabras
         resultado=''
         index=0
-        for palabra in self.som.train_dict.keys():
+        lista_llaves=list(self.som.train_dict.keys())
+        for palabra in lista_llaves:
+            self.progress_text_key.set("Progreso "+str(index+1)+"/"+str(len(lista_llaves))+" llaves")
             resultado+=f"---#{index} {palabra}: {self.som.train_dict[palabra]}---\n"
             bmu_index=self.som.best_matching_unit(self.som.train_dict[palabra])
             vector=self.som.weights[bmu_index]
             resultado+=f"BMU {self.som.coor_from_index(bmu_index)}: {vector}\n"
             resultado+=f"Distancia: {som.dist_euclid(self.som.train_dict[palabra], vector)}\n"
             for i in range(1,max_vecinity+1):
+                self.progress_text_vec.set("Progreso "+str(i)+"/"+str(max_vecinity)+" vecindarios")
+                self.root.update()
                 resultado+=f"Vecindario {i}:{self.som.vecindario(palabra,i)}\n"
+            resultado+='\n'
             index+=1
-        save_path=None
-        while not save_path:
-            save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
-            if save_path:
-                f=open(save_path.name,'w')
-                f.write(resultado)
-                f.close()
+        self.progress_text_key.set("")
+        self.progress_text_vec.set("")
+        self.root.update()
+        save_path=filedialog.asksaveasfile(filetypes=[("txt files","*.txt")])
+        if save_path:
+            f=open(save_path.name,'w')
+            f.write(resultado)
+            f.close()
 
     def som_training(self)->None:
         cicles = simpledialog.askinteger("Ciclos de entrenamiento","cicles=")
