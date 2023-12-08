@@ -135,18 +135,18 @@ class interface:
         
         self.root.mainloop()
     
-    def agrupamiento(self)->None:
+    def agrupamiento(self) -> None:
         if not self.som.keys_list:
             messagebox.showerror("Se necesita una base de datos")
             return
         max_vecinity=simpledialog.askinteger("Maxima Vecindad","max_vecinity=")
-        if not max_vecinity or max_vecinity<=1:
+        if not max_vecinity or max_vecinity<1:
             messagebox.showerror("Se necesita un valor valido")
             return
         #Lee archivo con lista de palabras
         resultado=''
         index=0
-        lista_llaves=list(self.som.train_dict.keys())
+        lista_llaves=self.som.keys_list
         for palabra in lista_llaves:
             self.progress_text_key.set("Progreso "+str(index+1)+"/"+str(len(lista_llaves))+" llaves")
             resultado+=f"---#{index} {palabra}: {self.som.train_dict[palabra]}---\n"
@@ -177,8 +177,7 @@ class interface:
         if not cicles:
             messagebox.showerror("Se necesita la dimension del SOM")
             return
-        self.som.cicles = cicles
-        self.som.init_training()
+        self.som.init_training(cicles)
         self.update_som_image(self.som.graph())
 
     def new_som(self) -> None:

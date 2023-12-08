@@ -7,6 +7,7 @@ import math
 
 class somObject:
     n: int
+    cicles:int
     training_i: int
     weightsLen:int
     learning_rate: float
@@ -51,7 +52,6 @@ class somObject:
         self.keys_list = list(self.train_dict.keys()) #  Lista de las llaves del diccionario 'train_dict'.
         key = self.keys_list[0] 
         self.weightsLen = len(self.train_dict[key]) # Tamaño de los vestores de entrenamiento.
-            
     
     def get_sample(self) -> list:
         """ Regresa un muestreo de los datos de entranamiento.
@@ -133,11 +133,11 @@ class somObject:
             w[i] = w[i] + lr_t * (bmu[i] - w[i])  
         return w
             
-    def init_training(self) -> None:
+    def init_training(self, cicles: int) -> None:
         """
             Inicia el entrenamiento para el SOM.
         """
-        
+        self.cicles = cicles
         if self.new:
             self.init_weights()
         
@@ -299,9 +299,6 @@ class somObject:
         
         
         dm.saveJson(self.jsonData, nameFile)
-
-    def GetDict(self) -> dict:
-        return dm.csv_read_dict(self.strt)
                 
 # ----------Operaciones con vectores ----------#
 
