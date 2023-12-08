@@ -10,7 +10,6 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 
 class interface:
-
     def __init__(self):
         # Configuración del frame principal 
         self.root = tk.Tk()
@@ -232,17 +231,18 @@ class interface:
             self.txtw1vs1_1.set("Coordenadas para bmu de w1: ("+str(i_1)+","+str(j_1)+")")
             self.txtw1vs1_2.set("Coordenadas para bmu de w2: ("+str(i_2)+","+str(j_2)+")")
             
-            self.bmu1vs1_w1.set("Bmu 1: \n"+str(self.vector_round(bmu_v, 2)))
-            self.bmu1vs1_w2.set("Bmu 2: \n"+str(self.vector_round(bmu_u, 2)))
+            self.v1vs1_w1.set("Vector w1: "+str(self.vector_round(v, 2)))
+            self.u1vs1_w2.set("Vector w2: "+str(self.vector_round(u, 2)))
             
-            self.v1vs1_w1.set("Vector w1: \n"+str(self.vector_round(v, 2)))
-            self.u1vs1_w2.set("Vector w2: \n"+str(self.vector_round(u, 2)))
+            self.w1vs1.set("Distancia palabras:" + str(round(som.dist_euclid(u,v), 2)))
             
-            self.bmu_w1.set("Distancia w1 - bmu1: \n"+str(round(som.dist_euclid(bmu_v,v), 2)))
-            self.bmu_w2.set("Distancia w2 - bmu2: \n"+str(round(som.dist_euclid(bmu_u,u), 2)))
+            self.bmu1vs1_w1.set("Bmu w1: "+str(self.vector_round(bmu_v, 2)))
+            self.bmu1vs1_w2.set("Bmu w2: "+str(self.vector_round(bmu_u, 2)))
             
-            self.bmu1vs1.set("Distancia bmu: \n" + str(round(som.dist_manhattan(bmu_v,bmu_u), 2)))
-            self.w1vs1.set("Distancia palabras: \n" + str(round(som.dist_euclid(u,v), 2)))
+            self.bmu1vs1.set("Distancia bmu:" + str(round(som.dist_manhattan(bmu_v,bmu_u), 2)))
+            
+            self.bmu_w1.set("Distancia w1 - bmu w1:"+str(round(som.dist_euclid(bmu_v,v), 2)))
+            self.bmu_w2.set("Distancia w2 - bmu w2:"+str(round(som.dist_euclid(bmu_u,u), 2)))
             
             self.update_som_image(fig)
 
@@ -290,6 +290,7 @@ class interface:
             self.update_som_image(fig)
 
     def quit(self)->None:
+        self.root.quit()
         self.root.destroy()
     
     def vector_round(self, v: list, n: int) -> list:

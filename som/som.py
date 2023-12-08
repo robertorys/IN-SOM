@@ -1,11 +1,3 @@
-# Datos de un objeto som:
-# - Nombre del som.
-# - Tamaño de la matriz.
-# - Iteraciones para el entrenamiento.
-# - Tasa de aprendizaje.
-# - Longitud del vector de peso.
-# - Matriz de pesos.
-
 from som import dataManager as dm
 import matplotlib.pyplot as plt
 import sys
@@ -14,7 +6,19 @@ import math
 
 
 class somObject:
-    normsMatrix = []
+    n: int
+    training_i: int
+    weightsLen:int
+    learning_rate: float
+    weights: list
+    new: bool
+    
+    jsonData:dict
+    
+    train_dict: dict
+    keys_list: list
+    
+    normsMatrix:list
 
     # Iniciar el nuevo SOM.
     def __init__(self, n:int, somJson: str = None, learning_rate=0.5):
@@ -82,7 +86,7 @@ class somObject:
                 min = vector[0]
         return min, max
                 
-    def init_weights(self):
+    def init_weights(self) -> None:
         """ 
         Inicializa la matriz de pesos con una distribución unifroma con valores maximos y minimos de una muestra.
         """
@@ -129,7 +133,7 @@ class somObject:
             w[i] = w[i] + lr_t * (bmu[i] - w[i])  
         return w
             
-    def init_training(self):
+    def init_training(self) -> None:
         """
             Inicia el entrenamiento para el SOM.
         """
@@ -177,8 +181,6 @@ class somObject:
         
         self.createMatrixM()
         
-    
-
     def vecindario(self, key, vecinity:int) -> list:
         """ De una palabra (llave) cuales palabras (llaves) de la lista pertenecen a su vecindario de distancia 'vecinity'.
 
@@ -270,7 +272,7 @@ class somObject:
         plt.plot([u_i, v_i],[u_j, v_j],color='black')
         return fig, v_i, v_j, u_i, u_j, self.weights[bmu_v], self.weights[bmu_u]
     
-    def coor_from_index(self, index:int)->tuple:
+    def coor_from_index(self, index:int) -> tuple:
         """ Coordenadas de tipo matriz para una lista de listas.
 
         Args:
