@@ -39,13 +39,13 @@ class interface:
         fm2.grid(row=0, column=2, sticky='nsew')
     
         # Etiqueta
-        tk.Label(fm2, text='Una palabra', bg='white').pack()
+        tk.Label(fm2, text='Key', bg='white').pack()
         # Entrada para una palabra
         #Leer entrada al pulsar boton
         self.one_word_entry=tk.Entry(fm2)
         self.one_word_entry.pack()
         # Botón para una palabra
-        tk.Button(fm2, text='Buscar una palabra',command=self.search_word).pack()
+        tk.Button(fm2, text='Search key',command=self.search_word).pack()
         # Etiqueta de las coordenadas
         self.txtw1 = tk.StringVar()
         tk.Label(fm2, textvariable=self.txtw1, bg='white').pack()
@@ -64,7 +64,7 @@ class interface:
         fm3.grid(row=1, column=2, sticky='nsew')
 
         # Entiqueta
-        tk.Label(fm3, text='Two words', bg='white').pack()
+        tk.Label(fm3, text='Two keys', bg='white').pack()
         # Entrada para una palabra
         #Two Word First Word Entry
         self.tw_1w_e=tk.Entry(fm3)
@@ -120,13 +120,13 @@ class interface:
         fm6.grid(row=2,column=2,sticky='nsew')
         
         # Botones
-        tk.Button(fm6,text='Guardar SOM',command=self.save_som).pack()
-        tk.Button(fm4,text="Cargar SOM",command=self.load_som).pack()
-        tk.Button(fm4,text="Nuevo SOM",command=self.new_som).pack()
-        tk.Button(fm4,text="Cargar base de datos",command=self.load_database).pack()
-        tk.Button(fm5,text="Entrenar SOM", command=self.som_training).pack()
+        tk.Button(fm6,text='Save SOM',command=self.save_som).pack()
+        tk.Button(fm4,text="Load SOM",command=self.load_som).pack()
+        tk.Button(fm4,text="New SOM",command=self.new_som).pack()
+        tk.Button(fm4,text="Load DB",command=self.load_database).pack()
+        tk.Button(fm5,text="Train SOM", command=self.som_training).pack()
         tk.Button(fm6,text='Exit',command=self.quit).pack()
-        tk.Button(fm5,text="Vecindarios", command=self.agrupamiento).pack()
+        tk.Button(fm5,text="Vecinity", command=self.agrupamiento).pack()
         
         self.progress_text_key=tk.StringVar()
         tk.Label(fm5,textvariable=self.progress_text_key,bg='white').pack()
@@ -136,28 +136,31 @@ class interface:
         self.root.mainloop()
     
     def agrupamiento(self) -> None:
+        """ 
+        Creates a file with the neighborhood of each key.
+        """
         if not self.som.keys_list:
-            messagebox.showerror("Se necesita una base de datos")
+            messagebox.showerror("Needs DB")
             return
-        max_vecinity=simpledialog.askinteger("Maxima Vecindad","max_vecinity=")
+        max_vecinity=simpledialog.askinteger("Max Vecinity","max_vecinity=")
         if not max_vecinity or max_vecinity<1:
-            messagebox.showerror("Se necesita un valor valido")
+            messagebox.showerror("Needs valid value")
             return
         #Lee archivo con lista de palabras
         resultado=''
         index=0
         lista_llaves=self.som.keys_list
         for palabra in lista_llaves:
-            self.progress_text_key.set("Progreso "+str(index+1)+"/"+str(len(lista_llaves))+" llaves")
+            self.progress_text_key.set("Progress "+str(index+1)+"/"+str(len(lista_llaves))+" keys")
             resultado+=f"---#{index} {palabra}: {self.som.train_dict[palabra]}---\n"
             bmu_index=self.som.best_matching_unit(self.som.train_dict[palabra])
             vector=self.som.weights[bmu_index]
             resultado+=f"BMU {self.som.coor_from_index(bmu_index)}: {vector}\n"
-            resultado+=f"Distancia: {som.dist_euclid(self.som.train_dict[palabra], vector)}\n"
+            resultado+=f"Distance: {som.dist_euclid(self.som.train_dict[palabra], vector)}\n"
             for i in range(1,max_vecinity+1):
-                self.progress_text_vec.set("Progreso "+str(i)+"/"+str(max_vecinity)+" vecindarios")
+                self.progress_text_vec.set("Progress "+str(i)+"/"+str(max_vecinity)+" neighborhood")
                 self.root.update()
-                resultado+=f"Vecindario {i}:{self.som.vecindario(palabra,i)}\n"
+                resultado+=f"Vecinity {i}:{self.som.vecindario(palabra,i)}\n"
             resultado+='\n'
             index+=1
         self.progress_text_key.set("")
@@ -170,53 +173,66 @@ class interface:
             f.close()
 
     def som_training(self)->None:
-        cicles = simpledialog.askinteger("Ciclos de entrenamiento","cicles=")
+        """ 
+        Initialize training of SOM instance.
+        """
+        cicles = simpledialog.askinteger("Cicles of training","cicles=")
         if not self.som.keys_list:
-            messagebox.showerror("Se necesita una base de datos")
+            messagebox.showerror("Needs DB")
             return
         if not cicles:
-            messagebox.showerror("Se necesita la dimension del SOM")
+            messagebox.showerror("Needs cicles quantity")
             return
         self.som.init_training(cicles)
         self.update_som_image(self.som.graph())
 
     def new_som(self) -> None:
-        n=simpledialog.askinteger("Dimension del SOM","n=")
+        """ 
+        Sets a new Instance of SOM to the interface.
+        """
+        n=simpledialog.askinteger("SOM dimension nxn","n=")
         if not n:
-            messagebox.showerror("Se necesita la dimension del SOM")
+            messagebox.showerror("Needs valid value")
             return
 
-        learn_rate=simpledialog.askfloat("Tasa de aprendizaje","leaning_rate=")
+        learn_rate=simpledialog.askfloat("Learning rate","leaning_rate=")
         if learn_rate:
             self.som = som.somObject(n,learning_rate=learn_rate)
 
     def load_som(self) -> None:
+        """
+        Loads SOM instance from json.
+        """
         json_path=filedialog.askopenfile(filetypes=[("JSON FILES","*.json")])
         if json_path:
             self.som=som.somObject(0,json_path.name)
             self.update_som_image(self.som.graph())
         else:
-            messagebox.showerror("Necesitamos el archivo json que contiene el SOM")
+            messagebox.showerror("Needs SOM json file!")
             return
 
     def load_database(self) -> None:
+        """ Load database using file dialog
+        """
         train_data_path=filedialog.askopenfile(filetypes=[("CSV FILES","*.csv")])
         if not train_data_path:
-            messagebox.showerror("Se un csv con los datos de entrenamiento")
+            messagebox.showerror("Needs File path")
             return
         self.som.set_training_data(train_data_path.name)
             
-    def save_som(self)->None:     
+    def save_som(self)->None:
+        """ Save SOM on filedialog request
+        """    
         file_path=filedialog.asksaveasfile(defaultextension='.json')
         if file_path:
             self.som.save(file_path)
-            messagebox.showinfo("Archivo guardado con exito")
+            messagebox.showinfo("File saved succesfully")
         else:
-            messagebox.showerror("Error","Se requiere una dirección para guardar")
+            messagebox.showerror("Error","Needs file path")
         
     def twoword_search(self)->None:
         """
-        Si tenemos las 2 palabras en el diccionario entonces usamos graphDIF
+        Searches 2 keys input from the interface. If both are in the list updates canvas.
         """
         k1=self.tw_1w_e.get()
         k2=self.tw_2w_e.get()
@@ -227,28 +243,30 @@ class interface:
             
             fig, i_1, j_1, i_2, j_2, bmu_v, bmu_u = self.som.graphDif(u,v)
             
-            self.txtw1vs1_1.set("Coordenadas para bmu de w1: ("+str(i_1)+","+str(j_1)+")")
-            self.txtw1vs1_2.set("Coordenadas para bmu de w2: ("+str(i_2)+","+str(j_2)+")")
+            self.txtw1vs1_1.set("Coordinates for bmu of w1: ("+str(i_1)+","+str(j_1)+")")
+            self.txtw1vs1_2.set("Coordinates for bmu of w2: ("+str(i_2)+","+str(j_2)+")")
             
             self.v1vs1_w1.set("Vector w1: "+str(self.vector_round(v, 2)))
             self.u1vs1_w2.set("Vector w2: "+str(self.vector_round(u, 2)))
             
-            self.w1vs1.set("Distancia palabras:" + str(round(som.dist_euclid(u,v), 2)))
+            self.w1vs1.set("Distance from keys:" + str(round(som.dist_euclid(u,v), 2)))
             
             self.bmu1vs1_w1.set("Bmu w1: "+str(self.vector_round(bmu_v, 2)))
             self.bmu1vs1_w2.set("Bmu w2: "+str(self.vector_round(bmu_u, 2)))
             
-            self.bmu1vs1.set("Distancia bmu:" + str(round(som.dist_manhattan(bmu_v,bmu_u), 2)))
+            self.bmu1vs1.set("Distance bmu:" + str(round(som.dist_manhattan(bmu_v,bmu_u), 2)))
             
-            self.bmu_w1.set("Distancia w1 - bmu w1:"+str(round(som.dist_euclid(bmu_v,v), 2)))
-            self.bmu_w2.set("Distancia w2 - bmu w2:"+str(round(som.dist_euclid(bmu_u,u), 2)))
+            self.bmu_w1.set("Distance w1 - bmu w1:"+str(round(som.dist_euclid(bmu_v,v), 2)))
+            self.bmu_w2.set("Distance w2 - bmu w2:"+str(round(som.dist_euclid(bmu_u,u), 2)))
             
             self.update_som_image(fig)
-
     
     def reassign_figure(self, new_figure)->None:
         """
-        Limpia la figura utilizada en el canvas y asigna la nueva
+        Cleans last figure used in canvas to use new one.
+
+        Args:
+            new_figure(matplotlib.figure): New figure to update.
         """
         if self.recent_figure:
             self.recent_figure.clf()
@@ -257,7 +275,10 @@ class interface:
 
     def update_som_image(self,new_figure)->None:
         """
-        Actualiza el canvas asignandole la nueva figura
+        Updates canvas with new plot.
+
+        Args:
+            new_figure(matplotlib.figure): New figure to plot.
         """
         if self.canvas_som:
             self.canvas_som.get_tk_widget().pack_forget()
@@ -266,11 +287,9 @@ class interface:
         self.canvas_som=FigureCanvasTkAgg(self.recent_figure,master=self.som_tk)
         self.canvas_som.get_tk_widget().pack()
         
-    
     def search_word(self):
         """
-        Si la palabra esta en el diccionario entonces
-            Actualiza el canvas al pasarle la figura que regresa el plot, pasandole la lista que vincula la llave
+        If the word is in the list. Searches for the word in the matrix and updates the canvas.
         """
         #print(self.one_word_entry.get())
         #print(self.som.training_data.keys())
@@ -289,10 +308,22 @@ class interface:
             self.update_som_image(fig)
 
     def quit(self)->None:
+        """
+        Closes interface.
+        """
         self.root.quit()
         self.root.destroy()
     
     def vector_round(self, v: list, n: int) -> list:
+        """ Rounds vector values.
+
+        Args:
+            v(list): Vector.
+            n(int): Decimals to round.
+        
+        Returns:
+            Vector with round values.
+        """
         u = []
         for i in v:
             u.append(round(i, n))
