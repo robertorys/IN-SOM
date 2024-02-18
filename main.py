@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 class interface:
     def __init__(self):
-        # Configuración del frame principal 
+        # Main frame configuration
         self.root = tk.Tk()
         self.root.attributes('-topmost', 1)
         self.root.grid_rowconfigure(0, uniform="rows_g1",weight=1)
@@ -20,98 +20,90 @@ class interface:
         self.root.grid_columnconfigure(1,  uniform="cols_g1",weight=1)
         self.root.grid_columnconfigure(2,uniform='cols_g1',weight=1)
         self.root.grid_rowconfigure(2, uniform="rows_g1",weight=1)
-        #Objeto SOM para obtener el SOM, entrenar etc.
-        # self.som = som.somObject(100, 1000, '/home/dev212/Robotica_Corporizada/IN-SOM/som/data/sensorimotor.csv', '/home/dev212/Robotica_Corporizada/IN-SOM/som/som_test_1_100x100.json')
         
         self.recent_figure = None
 
-        # Frame1: Es para el som
-        #Creacion del Frame dedicado a graficar el resultado del SOM
+        # Frame1: 
+        # Creation of the Frame dedicated to graphing the result of the SOM.
         self.som_tk = fm1 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm1.grid(row=0, column=0, rowspan=2,columnspan=2, sticky='nsew')
-        #Canvas que maneja la figura de matplot para graficar sobre el tkinter
         self.canvas_som=None
-        #self.update_som_image(self.som.graph())
         
-        # Frame2: Una palabra
-        #Creacion del frame contenedor
+        # Frame2: One word
         fm2 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm2.grid(row=0, column=2, sticky='nsew')
-    
-        # Etiqueta
+
+        # Label
         tk.Label(fm2, text='Key', bg='white').pack()
-        # Entrada para una palabra
-        #Leer entrada al pulsar boton
+        # Entry for a word
         self.one_word_entry=tk.Entry(fm2)
         self.one_word_entry.pack()
-        # Botón para una palabra
         tk.Button(fm2, text='Search key',command=self.search_word).pack()
-        # Etiqueta de las coordenadas
+        # Coordinate label
         self.txtw1 = tk.StringVar()
         tk.Label(fm2, textvariable=self.txtw1, bg='white').pack()
-        # Etiqueta del bmu
+        # BMU label
         self.bmu_w = tk.StringVar()
         tk.Label(fm2, textvariable=self.bmu_w, bg='white').pack()
-        # Etiqueta del vector para la palabra
+        # Vector label for word
         self.v_w = tk.StringVar()
         tk.Label(fm2, textvariable=self.v_w, bg='white').pack()
-        # Etiqueta para la distancia entre bmu y el vector de la palabra
+        # Label for the distance between BMU and the word vector.
         self.w_dist = tk.StringVar()
         tk.Label(fm2, textvariable=self.w_dist, bg='white').pack()
         
-        # Frame3: Dos palabra
+        # Frame3: Two word
         fm3 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm3.grid(row=1, column=2, sticky='nsew')
 
-        # Entiqueta
+        # Label
         tk.Label(fm3, text='Two keys', bg='white').pack()
-        # Entrada para una palabra
         #Two Word First Word Entry
         self.tw_1w_e=tk.Entry(fm3)
         self.tw_1w_e.pack()
         self.tw_2w_e=tk.Entry(fm3)
         self.tw_2w_e.pack()
         
-        # Botón para dos palabra
+        # Button for two words
         tk.Button(fm3, text='Search',command=self.twoword_search).pack()
         
-        # Etiqueta de coordenadas de las palabras
+        # Word coordinate label
         self.txtw1vs1_1 = tk.StringVar()
         self.txtw1vs1_2 = tk.StringVar()
         tk.Label(fm3, textvariable=self.txtw1vs1_1, bg='white').pack()
         tk.Label(fm3, textvariable=self.txtw1vs1_2, bg='white').pack()
         
-        # Etiqueta del bmu1
+        # BMU1 label
         self.bmu1vs1_w1 = tk.StringVar()
         tk.Label(fm3, textvariable=self.bmu1vs1_w1, bg='white').pack()
-        # Etiqueta del bmu2
+        # BMU2 label
         self.bmu1vs1_w2 = tk.StringVar()
         tk.Label(fm3, textvariable=self.bmu1vs1_w2, bg='white').pack()
         
-        # Etiqueta del vector para la palabra 1
+        # Vector label for word 1
         self.v1vs1_w1 = tk.StringVar()
         tk.Label(fm3, textvariable=self.v1vs1_w1, bg='white').pack()
-        # Etiqueta del vector para la palabra 2
+        # Vector label for word 2
         self.u1vs1_w2 = tk.StringVar()  
         tk.Label(fm3, textvariable=self.u1vs1_w2, bg='white').pack()
         
-        # Etiqueta para la distancia entre bmu 
+        # Label for the distance between two BMU
         self.bmu1vs1 = tk.StringVar()
         tk.Label(fm3, textvariable=self.bmu1vs1, bg='white').pack()
         
-        # Etiqueta para la distancia entre palabras
+        # Label for the distance between two words
         self.w1vs1 = tk.StringVar()
         tk.Label(fm3, textvariable=self.w1vs1, bg='white').pack()
         
-        # Etiqueta para la distancia entre bmu1 y w1
+        # Label for the distance between bmu1 and w1
         self.bmu_w1 = tk.StringVar()
         tk.Label(fm3, textvariable=self.bmu_w1, bg='white').pack()
         
-        # Etiqueta para la distancia entre bmu1 y w1
+        # Label for the distance between bmu2 and w2
         self.bmu_w2 = tk.StringVar()
         tk.Label(fm3, textvariable=self.bmu_w2, bg='white').pack()
 
-        # Frame4: Meter archivo y entrenar el som.
+        # Frame4: Add file and train SO.
         fm4 = tk.Frame(self.root, bg='white',highlightbackground="black", highlightthickness=2)
         fm4.grid(row=2, column=0, sticky='nsew')
         fm5=tk.Frame(self.root,bg='white',highlightbackground="black", highlightthickness=2)
@@ -119,7 +111,7 @@ class interface:
         fm6=tk.Frame(self.root,bg='white',highlightbackground="black", highlightthickness=2)
         fm6.grid(row=2,column=2,sticky='nsew')
         
-        # Botones
+        # Buttons
         tk.Button(fm6,text='Save SOM',command=self.save_som).pack()
         tk.Button(fm4,text="Load SOM",command=self.load_som).pack()
         tk.Button(fm4,text="New SOM",command=self.new_som).pack()
@@ -146,7 +138,8 @@ class interface:
         if not max_vecinity or max_vecinity<1:
             messagebox.showerror("Needs valid value")
             return
-        #Lee archivo con lista de palabras
+        
+        # Read file with word list
         resultado=''
         index=0
         lista_llaves=self.som.keys_list

@@ -1,28 +1,60 @@
 # IN-SOM
 
-Implementación de una interfaz para un SOM, que muestra una representaión grafica del SOM.
+Implementación de una interfaz para un SOM, que muestra una representaión grafica del SOM. Junto con una modulo de python para trabajar con un SOM atraves de código sin el uso de la interfaz.
+
+## Tabla de Contenidos
+
+- [Instalación](#instalación)
+- [Uso](#uso)
 
 ## Instalación
 
-Asegúrate de tener Python instalado. Clona el repositorio y luego instala las dependencias.
+Asegúrate de tener Python 3.10.12 instalado. Descarga el repositorio y luego instala las dependencias.
 
-````bash
-git clone [https://github.com/tu_usuario/tu_proyecto.git](https://github.com/robertorys/IN-SOM.git)
-cd IN-SOM
-pip install -r requirements.txt
-````
+Dependencias:
+- matplotlib
+- tkinter
 
-/IN-SOM
-  ├── main.py #Archivo a ejecutar para tener la interfaz
-  └── /som
-    ├── som.py #Archivo con la clase SOM y sus metodos
-    ├── dataManager.py #Archivo que maneja la información json y csv
-    ├── formato.txt #Formato del json creado por SOM
-    ├── test.py #Prueba de SOM con sensorimotor.csv y guardado de SOM
-    ├── testp.py #Prueba de graficacion con SOM
-    ├── som_test_1_100x100.json #Som Entrenado
-    └── /data
-        ├── agrupamiento_test.csv #Archivo de practica para agrupamiento
-        ├── agrupamiento_test_res #Archivo con resultados de agrupamiento
-        ├── s.py #SOM Entrenado
-        └── sensorimotor.csv #Informacion para entrenar SOM Llave:[Valores]
+
+Archivos:
+
+-/IN-SOM
+  - main.py #Archivo a ejecutar para tener la interfaz
+  - /som
+    - som.py #Archivo con la clase SOM y sus metodos
+    - dataManager.py #Archivo que maneja la información json y csv
+    - /data
+      - sensorimotor.csv #Informacion para entrenar SOM Llave:[Valores]
+
+## Uso
+
+### Base de datos
+Asegurate de que el archivo que tenga los datos de entrenamiento o consulta tenga cabezales y sea un formato csv.
+
+Por ejemplo:
+
+"Word","Auditory","Gustatory","Haptic"
+
+"A",2.214,0,0.429
+
+"ACAPPELLA",4.333,0,0.222
+
+### Libreria SOM
+
+Para entrenar un som con código tienes que importar somObject del modulo som, para después crear un objeto de la siguente forma:
+
+```python
+from som import somObject
+
+N = 100 # Matrix size nxn.
+
+som = somObject(N,'example.csv')
+
+som.init_weights() # initialize weights with random values
+
+cicles = 100 # number of training cycles
+
+som.init_training()
+```
+
+Para buscar el BMU (Best Maching Unit) viene por defecto la distancia euclidina, pero si se desea modificar solo se tiene que ir al método best_matching_unit y modificar cual es método de selección.
