@@ -1,47 +1,49 @@
 # IN-SOM
 
-Implementación de una interfaz para un SOM, que muestra una representaión grafica del SOM. Junto con una modulo de python para trabajar con un SOM atraves de código sin el uso de la interfaz.
+Implementation of an interface for a SOM, which shows a graphical representation of the SOM. Along with a python module to work with a SOM through code without the use of the interface.
 
-## Tabla de Contenidos
+## Content Table
 
-- [Instalación](#instalación)
-- [Uso](#uso)
+- [Instalation](#instalation)
+- [Use](#use)
 
-## Instalación
+## Instalation
 
-Asegúrate de tener Python 3.10.12 instalado. Descarga el repositorio y luego instala las dependencias.
+Make sure you have Python 3.10.12 installed. Download the repository and then install the dependencies.
 
-Dependencias:
+Dependecies:
+
 - matplotlib
 - tkinter
 
-
-Archivos:
+Files:
 
 -/IN-SOM
-  - main.py #Archivo a ejecutar para tener la interfaz
-  - /som
-    - som.py #Archivo con la clase SOM y sus metodos
-    - dataManager.py #Archivo que maneja la información json y csv
-    - /data
-      - sensorimotor.csv #Informacion para entrenar SOM Llave:[Valores]
 
-## Uso
+- main.py #File that executes the interface
+- /som
+  - som.py #File that handles SOM class
+  - dataManager.py #File that handles data retribution from CSV and Json files
+  - /data
+    - sensorimotor.csv #Training information for SOM[Valores]
 
-### Base de datos
-Asegurate de que el archivo que tenga los datos de entrenamiento o consulta tenga cabezales y sea un formato csv.
+## Use
 
-Por ejemplo:
+### Data Base
 
-"Word","Auditory","Gustatory","Haptic"
+Please make sure the file that contains the training data has headers and its in a csv format.
 
-"A",2.214,0,0.429
+For example:
 
-"ACAPPELLA",4.333,0,0.222
+"Word","Auditory","Gustatory","Haptic" #Headers
+
+"A",2.214,0,0.429 #Content
+
+"ACAPPELLA",4.333,0,0.222 #Content
 
 ### Libreria SOM
 
-Para entrenar un som con código tienes que importar somObject del modulo som, para después crear un objeto de la siguente forma:
+For training a SOM without the interface, you need to import somObjet from de file SOM, for creating an instance of the SOM:
 
 ```python
 from som import somObject
@@ -57,4 +59,4 @@ cicles = 100 # number of training cycles
 som.init_training()
 ```
 
-Para buscar el BMU (Best Maching Unit) viene por defecto la distancia euclidina, pero si se desea modificar solo se tiene que ir al método best_matching_unit y modificar cual es método de selección.
+For searching the BMU (Best Matching Unit) the method used for defect is euclid distance, but if you want to modify it you only need to go to the methods 'best_matching_unit' and modify which is the selection method.
