@@ -25,7 +25,7 @@ Files:
   - som.py #File that handles SOM class
   - dataManager.py #File that handles data retribution from CSV and Json files
   - /data
-    - sensorimotor.csv #Training information for SOM[Valores]
+    - sensorimotor.csv #Training information for SOM
 
 ## Use
 
@@ -41,7 +41,7 @@ For example:
 
 "ACAPPELLA",4.333,0,0.222 #Content
 
-### Libreria SOM
+### Library SOM
 
 For training a SOM without the interface, you need to import somObjet from de file SOM, for creating an instance of the SOM:
 
