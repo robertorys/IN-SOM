@@ -5,18 +5,6 @@ import random
 import math
 
 class somObject:
-    n: int  # Matrix size nxn.
-    cicles:int # Number of iterations to train.
-    training_i: int # Number of current training iterations.
-    weightsLen:int # Vector cardinality.
-    learning_rate: float 
-    weights: list # Weight list.
-    new: bool
-    jsonData:dict
-    train_dict: dict
-    keys_list: list
-    normsMatrix:list
-
     # Iniciar el nuevo SOM.
     def __init__(self, n:int, somJson: str = None, learning_rate=0.5):
         """Initialize SOM object with parameters
